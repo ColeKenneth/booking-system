@@ -1,0 +1,22 @@
+{
+    "name": "ckbsi/online-booking",
+    "description": "Online booking system",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "OnlineBooking\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ColeKenneth",
+            "email": "coleken379@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+      "ext-pdo": "*",
+        "vlucas/phpdotenv": "^8.0"
+    }
+}
