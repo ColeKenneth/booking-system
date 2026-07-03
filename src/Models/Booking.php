@@ -8,7 +8,7 @@ use OnlineBooking\src\Exceptions\InvalidDataException;
 class Booking implements Validate
 {
     public function __construct(
-        public private(set) readonly ?int $bookingId,
+        private(set) readonly ?int $bookingId,
         private readonly ?int $passengerId,
         private readonly ?int $driverId,
         public string $pickupLocation {
@@ -43,7 +43,7 @@ class Booking implements Validate
             }
         },
 
-        public private(set) readonly BookingStatus $bookingStatus
+        private(set) readonly BookingStatus $bookingStatus
     ){}
 
     public function getPassengerId() : ?int {

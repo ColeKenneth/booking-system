@@ -8,12 +8,12 @@ use Override;
 class Passenger extends User implements Validate
 {
     public function __construct(
-        public private(set) readonly ?int $passengerId,
+        private(set) readonly ?int $passengerId,
         ?int $userId,
         string $fullName,
         string $userName,
         string $password,
-        public private(set) readonly PassengerStatus $passengerStatus
+        private(set) readonly PassengerStatus $passengerStatus
     )
     {
         parent::__construct($userId, $fullName, $userName, $password, UserRole::PASSENGER);

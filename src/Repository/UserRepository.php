@@ -27,7 +27,7 @@ readonly class UserRepository implements IUserRepository
             ]);
         } catch (PDOException $e) {
             if ((int)$e->getCode() === 23000) throw new UserAlreadyExistsException("User already exists.", code: 409);
-            error_log("Error saving user: [{$user->username}]" . $e->getMessage());
+            error_log("Error saving user: [$user->username]" . $e->getMessage());
             throw new RuntimeException("An error occurred while saving the user.", code: 500, previous: $e);
         }
     }
@@ -43,7 +43,7 @@ readonly class UserRepository implements IUserRepository
 
             return User::fromArray($data);
         } catch (PDOException $e) {
-            error_log("Error finding username: [{$username}] " . $e->getMessage());
+            error_log("Error finding username: [$username] " . $e->getMessage());
             throw new RuntimeException("An error occurred while fetching username.",
             code: 500, previous: $e);
         }
@@ -79,7 +79,7 @@ readonly class UserRepository implements IUserRepository
                 ':user_id' => $user->userId
             ]);
         } catch (PDOException $e) {
-            error_log("Error updating user: [{$user->userId}] " . $e->getMessage());
+            error_log("Error updating user: [$user->userId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while updating user.",
             code: 500, previous: $e);
         }
@@ -95,7 +95,7 @@ readonly class UserRepository implements IUserRepository
                 ':user_id' => $userId
             ]);
         } catch (PDOException $e) {
-            error_log("Error updating password: [{$userId}] " . $e->getMessage());
+            error_log("Error updating password: [$userId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while updating password.",
             code: 500, previous: $e);
         }
@@ -110,7 +110,7 @@ readonly class UserRepository implements IUserRepository
             $stmt = $this->pdo->prepare("DELETE FROM users WHERE user_id = :user_id");
             return $stmt->execute([':user_id' => $userId]);
         } catch (PDOException $e) {
-            error_log("Error deleting user: [{$userId}] " . $e->getMessage());
+            error_log("Error deleting user: [$userId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while deleting user.",
             code: 500, previous: $e);
         }

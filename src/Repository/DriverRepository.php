@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OnlineBooking\src\Repository;
 
@@ -31,7 +32,7 @@ readonly class DriverRepository implements IDriverRepository
             return $result;
         } catch (PDOException $e) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
-            error_log("Error saving driver: [{$driver->username}] " . $e->getMessage());
+            error_log("Error saving driver: [$driver->username] " . $e->getMessage());
             throw new RuntimeException("An error occurred while saving driver.", code: 500, previous: $e);
         }
     }
@@ -49,7 +50,7 @@ readonly class DriverRepository implements IDriverRepository
 
             return Driver::fromArray($data);
         } catch (PDOException $e) {
-            error_log("Error finding driver: [{$driverId}] " . $e->getMessage());
+            error_log("Error finding driver: [$driverId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while fetching driver.",
             code: 500, previous: $e);
         }
@@ -90,7 +91,7 @@ readonly class DriverRepository implements IDriverRepository
             return $result;
         } catch (PDOException $e) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
-            error_log("Error updating driver: [{$driver->username}] " . $e->getMessage());
+            error_log("Error updating driver: [$driver->username] " . $e->getMessage());
             throw new RuntimeException("An error occurred while updating driver.", code: 500, previous: $e);
         }
     }
@@ -105,7 +106,7 @@ readonly class DriverRepository implements IDriverRepository
                 ':driver_id' => $driverId
             ]);
         } catch (PDOException $e) {
-            error_log("Error updating driver status: [{$driverId}] " . $e->getMessage());
+            error_log("Error updating driver status: [$driverId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while updating the driver's status.",
             code: 500, previous: $e);
         }
@@ -119,7 +120,7 @@ readonly class DriverRepository implements IDriverRepository
             if ($stmt->rowCount() === 0) throw new DriverNotFoundException("Driver not found.", code: 404);
             return $result;
         } catch (PDOException $e) {
-            error_log("Error deleting driver: [{$driverId}] " . $e->getMessage());
+            error_log("Error deleting driver: [$driverId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while deleting driver.", code: 500, previous: $e);
         }
     }

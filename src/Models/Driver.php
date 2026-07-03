@@ -10,7 +10,7 @@ use Override;
 class Driver extends User implements Validate
 {
     public function __construct(
-        public private(set) readonly ?int $driverId,
+        private(set) readonly ?int $driverId,
         ?int $userId,
         string $fullName,
         string $username,
@@ -43,7 +43,7 @@ class Driver extends User implements Validate
             }
         },
 
-        public private(set) readonly DriverStatus $driverStatus
+        private(set) readonly DriverStatus $driverStatus
     ) {
         parent::__construct($userId, $fullName, $username, $password, UserRole::DRIVER);
     }

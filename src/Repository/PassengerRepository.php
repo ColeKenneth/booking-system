@@ -29,7 +29,7 @@ readonly class PassengerRepository implements IPassengerRepository
             return $result;
         } catch (PDOException $e) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
-            error_log("Error saving passenger: [{$passenger->username}] " . $e->getMessage());
+            error_log("Error saving passenger: [$passenger->username] " . $e->getMessage());
             throw new RuntimeException("An error occurred while saving passenger.",
             code: 500, previous: $e);
         }
@@ -49,7 +49,7 @@ readonly class PassengerRepository implements IPassengerRepository
 
             return Passenger::fromArray($data);
         } catch (PDOException $e) {
-            error_log("Error fetching passenger: [{$passengerId}] " . $e->getMessage());
+            error_log("Error fetching passenger: [$passengerId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while fetching passenger.",
             code: 500, previous: $e);
         }
@@ -60,7 +60,7 @@ readonly class PassengerRepository implements IPassengerRepository
         try {
             $stmt = $this->pdo->prepare("SELECT u.user_id, u.full_name, u.username, u.password, u.user_role,
             p.passenger_id, p.passenger_status FROM passengers p JOIN users u on p.user_id = u.user_id
-            ORDER BY p.passenger_id ASC");
+            ORDER BY p.passenger_id");
 
             $stmt->execute();
             $results = $stmt->fetchAll();
@@ -86,7 +86,7 @@ readonly class PassengerRepository implements IPassengerRepository
             return $result;
         } catch (PDOException $e) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
-            error_log("Error updating passenger: [{$passenger->passengerId}] " . $e->getMessage());
+            error_log("Error updating passenger: [$passenger->passengerId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while updating passenger.", code: 500, previous: $e);
         }
     }
@@ -99,7 +99,7 @@ readonly class PassengerRepository implements IPassengerRepository
             if ($stmt->rowCount() === 0) throw new PassengerNotFoundException("Passenger not found.", code: 404);
             return $result;
         } catch (PDOException $e) {
-            error_log("Error deleting passenger: [{$passengerId}] " . $e->getMessage());
+            error_log("Error deleting passenger: [$passengerId] " . $e->getMessage());
             throw new RuntimeException("An error occurred while deleting passenger.",
             code: 500, previous: $e);
         }

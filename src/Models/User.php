@@ -12,7 +12,7 @@ class User implements Validate
 {
    private string $newPassword;
    public function __construct(
-       public private(set) readonly ?int $userId,
+       private(set) readonly ?int $userId,
 
        public string $fullName {
            get => $this->fullName;
@@ -38,7 +38,7 @@ class User implements Validate
        },
 
        private readonly string $password,
-       public private(set) readonly UserRole $userRole
+       private(set) readonly UserRole $userRole
    ) {}
 
     public function getHashedPassword() : string
