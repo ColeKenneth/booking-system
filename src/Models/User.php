@@ -10,7 +10,6 @@ use Override;
 
 class User implements Validate
 {
-   private string $newPassword;
    public function __construct(
        private(set) readonly ?int $userId,
 
@@ -51,7 +50,7 @@ class User implements Validate
         return password_verify($plainTextPassword, $this->password);
     }
 
-    public function updatePassword(string $newPassword) : void
+    public function validateNewPassword(string $newPassword) : void
     {
         if (!preg_match(BookingConstants::PASSWORD_FORMAT, $newPassword)) {
             throw new InvalidDataException(BookingConstants::PASSWORD_HINT);
