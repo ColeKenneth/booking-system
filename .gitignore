@@ -2,6 +2,9 @@
 composer.lock
 composer.phar
 
+phpstan.neon
+.phpstan.neon
+
 .env
 .env.*
 !.env.example

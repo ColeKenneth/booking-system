@@ -7,7 +7,7 @@ use OnlineBooking\src\Contracts\Validate;
 use OnlineBooking\src\Exceptions\InvalidDataException;
 use Override;
 
-class Driver extends User implements Validate
+final class Driver extends User implements Validate
 {
     public function __construct(
         private(set) readonly ?int $driverId,
@@ -57,9 +57,9 @@ class Driver extends User implements Validate
     }
 
     #[Override]
-    public static function fromArray(array $data) : static
+    public static function fromArray(array $data) : self
     {
-        return new static(
+        return new self(
             (int)$data['driver_id'],
             (int)$data['user_id'],
             $data['full_name'],

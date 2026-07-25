@@ -5,7 +5,7 @@ namespace OnlineBooking\src\Models;
 use OnlineBooking\src\Contracts\Validate;
 use OnlineBooking\src\Exceptions\InvalidDataException;
 
-class Booking implements Validate
+final class Booking implements Validate
 {
     public function __construct(
         private(set) readonly ?int $bookingId,
@@ -60,9 +60,9 @@ class Booking implements Validate
        $this->dropOffLocation = trim($this->dropOffLocation);
     }
 
-    public static function fromArray(array $data) : static
+    public static function fromArray(array $data) : self
     {
-        return new static(
+        return new self(
             (int)$data['booking_id'],
             (int)$data['passenger_id'],
             (int)$data['driver_id'],

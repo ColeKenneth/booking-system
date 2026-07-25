@@ -64,9 +64,9 @@ class User implements Validate
         $this->username = trim($this->username);
     }
 
-    public static function fromArray(array $data) : static
+    public static function fromArray(array $data) : self
     {
-        return new static(
+        return new self(
             (int)$data['user_id'],
             $data['full_name'],
             $data['username'],
