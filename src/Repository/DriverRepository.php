@@ -20,7 +20,7 @@ readonly class DriverRepository implements IDriverRepository
             $this->userRepository->save($driver);
             $userId = $this->pdo->lastInsertId();
 
-            $stmt = $this->pdo->prepare("INSERT INTO (user_id, car_brand, plate_number, driver_status) VALUES (:user_id, :car_brand, :plate_number, :driver_status)");
+            $stmt = $this->pdo->prepare("INSERT INTO drivers (user_id, car_brand, plate_number, driver_status) VALUES (:user_id, :car_brand, :plate_number, :driver_status)");
             $result = $stmt->execute([
                 ':user_id' => $userId,
                 ':car_brand' => $driver->carBrand,
