@@ -6,7 +6,6 @@ enum FareTier
 {
     case ECO_CLASS;
     case STANDARD;
-
     case PREMIUM;
 
     public function getFareAmount() : float

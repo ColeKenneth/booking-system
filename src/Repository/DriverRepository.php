@@ -5,6 +5,8 @@ namespace OnlineBooking\src\Repository;
 
 use OnlineBooking\src\Exceptions\DriverNotFoundException;
 use OnlineBooking\src\Models\Driver;
+use OnlineBooking\src\Models\DriverStatus;
+use Override;
 use PDO;
 use PDOException;
 use RuntimeException;
@@ -75,6 +77,25 @@ readonly class DriverRepository implements IDriverRepository
         }
     }
 
+    public function findDriverByPlateNumber(string $plateNumber): ?Driver
+    {
+        try {
+            $stmt = $this->pdo->prepare("SELECT u.user_id, u.full_name, u.username, u.password, u.user_role, d.driver_id, d.car_brand,
+            d.plate_number, d.driver_status FROM drivers d JOIN users u ON d._user_id = u.user_id
+            WHERE d.plate_number = :plate_number LIMIT 1");
+            $stmt->execute([':plate_number' => $plateNumber]);
+            $data = $stmt->fetch();
+
+            if (!$data) return null;
+
+            return Driver::fromArray($data);
+        } catch (PDOException $e) {
+            error_log("Error finding driver by plate number: [$plateNumber] " . $e->getMessage());
+            throw new RuntimeException("An error occurred while fetching driver by their plate number.",
+            code: 500, previous: $e);
+        }
+    }
+
     public function findAllDrivers(): array
     {
         try {
@@ -115,13 +136,13 @@ readonly class DriverRepository implements IDriverRepository
         }
     }
 
-    public function updateStatus(int $driverId, string $status): bool
+    public function updateStatus(int $driverId, DriverStatus $status): bool
     {
         try {
             $stmt = $this->pdo->prepare("UPDATE drivers SET driver_status = :driver_status WHERE driver_id = :driver_id");
 
             return $stmt->execute([
-                ':driver_status' => $status,
+                ':driver_status' => $status->value,
                 ':driver_id' => $driverId
             ]);
         } catch (PDOException $e) {

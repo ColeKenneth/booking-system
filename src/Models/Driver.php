@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace OnlineBooking\src\Models;
 
+use DateTime;
+use DateTimeImmutable;
 use OnlineBooking\src\Constants\BookingConstants;
 use OnlineBooking\src\Contracts\Validate;
 use OnlineBooking\src\Exceptions\InvalidDataException;
@@ -43,9 +45,14 @@ final class Driver extends User implements Validate
             }
         },
 
-        private(set) readonly DriverStatus $driverStatus
+        private(set) readonly DriverStatus $driverStatus,
+        private ?DateTimeImmutable $createdAt = null
     ) {
         parent::__construct($userId, $fullName, $username, $password, UserRole::DRIVER);
+    }
+
+    public string $formattedCreatedAt {
+        get => $this->createdAt?->format('Y-m-d H:i:s') ?? '';
     }
 
     #[Override]
@@ -67,7 +74,8 @@ final class Driver extends User implements Validate
             $data['password'],
             $data['car_brand'],
             $data['plate_number'],
-            DriverStatus::from($data['driver_status'])
+            DriverStatus::from($data['driver_status']),
+            isset($data['created_at']) ? new DateTimeImmutable($data['created_at']) : null
         );
     }
 }

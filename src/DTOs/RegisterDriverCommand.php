@@ -5,7 +5,7 @@ namespace OnlineBooking\src\DTOs;
 
 use OnlineBooking\src\Models\DriverStatus;
 
-readonly class RegisterDriverCommand 
+final readonly class RegisterDriverCommand 
 {
     public function __construct(
         public int $userId,
