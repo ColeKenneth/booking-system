@@ -9,6 +9,7 @@ interface IDriverRepository
 {
     public function saveDriver(Driver $driver) : bool;
     public function findDriverById(int $driverId) : ?Driver;
+    public function findDriverByUserId(int $userId) : ?Driver;
     public function findAllDrivers() : array;
     public function updateDriver(Driver $driver) : bool;
     public function updateStatus(int $driverId, string $status) : bool;

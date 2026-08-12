@@ -56,6 +56,25 @@ readonly class DriverRepository implements IDriverRepository
         }
     }
 
+    public function findDriverByUserId(int $userId): ?Driver
+    {
+        try {
+            $stmt = $this->pdo->prepare("SELECT u.user_id, u.full_name, u.username, u.password, u.user_role,
+            d.driver_id, d.car_brand, d.plate_number, d.driver_status FROM drivers d JOIN users u ON d.user_id = u.user_id
+            WHERE d.user_id = :user_id LIMIT 1");
+            $stmt->execute([':user_id' => $userId]);
+            $data = $stmt->fetch();
+
+            if (!$data) return null;
+
+            return Driver::fromArray($data);
+        } catch (PDOException $e) {
+            error_log("Error finding driver by user ID: [$userId] " . $e->getMessage());
+            throw new RuntimeException("An error occurred while fetching driver.",
+            code: 500, previous: $e);
+        }
+    }
+
     public function findAllDrivers(): array
     {
         try {

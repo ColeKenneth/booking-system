@@ -34,10 +34,7 @@ final readonly class UserService
         );
         $this->userRepository->save($user);
 
-        $savedUser = $this->userRepository->findByUsername($username);
-        if ($savedUser === null) {
-            throw new RuntimeException("Failed to retrieve saved user", code: 500);
-        }
+        $savedUser = $this->userRepository->findByUsername($username) ?? throw new RuntimeException("Failed to retrieve saved user", code: 500);
         return $savedUser;
     }
 
@@ -57,23 +54,14 @@ final readonly class UserService
 
     public function getUserById(int $userId) : User
     {
-        $user = $this->userRepository->findByUserId($userId);
-
-        if ($user === null) {
-            throw new UserNotFoundException("User not found with ID: $userId", code: 404);
-        }
+        $user = $this->userRepository->findByUserId($userId) ?? throw new UserNotFoundException("User not found with ID: $userId", code: 404);
 
         return $user;
     }
 
     public function getUserByUsername(string $username) : User
     {
-        $user = $this->userRepository->findByUsername($username);
-
-        if ($user === null) {
-            throw new UserNotFoundException("User not found with username: $username", code: 404);
-        }
-
+        $user = $this->userRepository->findByUsername($username) ?? throw new UserNotFoundException("User not found with username: $username", code: 404);
         return $user;
     }
 

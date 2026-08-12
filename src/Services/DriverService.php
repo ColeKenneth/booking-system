@@ -3,32 +3,33 @@ declare(strict_types = 1);
 
 namespace OnlineBooking\src\Services;
 
+use OnlineBooking\src\DTOs\RegisterDriverCommand;
 use OnlineBooking\src\Exceptions\DriverAlreadyExistsException;
+use OnlineBooking\src\Exceptions\UserNotFoundException;
 use OnlineBooking\src\Models\Driver;
-use OnlineBooking\src\Models\DriverStatus;
 use OnlineBooking\src\Repository\DriverRepository;
 
 final readonly class DriverService
 {
     public function __construct(private DriverRepository $driverRepository, private UserService $userService){}
 
-    public function registerDriver(int $userId, string $carBrand, string $plate_number, DriverStatus $driverStatus = DriverStatus::OFFLINE) : Driver
+    public function registerDriver(RegisterDriverCommand $driverCommand) : Driver
     {
-        $user = $this->userService->getUserById($userId);
+        $user = $this->userService->getUserById($driverCommand->userId);
 
-        if ($this->driverRepository->findDriverById($userId) !== null) {
+        if ($this->driverRepository->findDriverByUserId($driverCommand->userId) !== null) {
             throw new DriverAlreadyExistsException("Driver already exists.", code: 409);
         }
 
         $driver = new Driver(
             driverId: null,
-            userId: $userId,
+            userId: $user->userId,
             fullName: $user->fullName,
             username: $user->username,
             password: $user->getHashedPassword(),
-            carBrand: $carBrand,
-            plateNumber: $plate_number,
-            driverStatus: $driverStatus
+            carBrand: $driverCommand->carBrand,
+            plateNumber: $driverCommand->plateNumber,
+            driverStatus: $driverCommand->driverStatus
         );
 
         $this->driverRepository->saveDriver($driver);

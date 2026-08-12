@@ -52,7 +52,7 @@ readonly class UserRepository implements IUserRepository
     public function findByUserId(int $userId): ?User
     {
         try {
-            $stmt = $this->pdo->prepare("SELECT user_id, full_name, username, password, user_role FROM users WHERE user_id = :user_id");
+            $stmt = $this->pdo->prepare("SELECT user_id, full_name, username, password, user_role FROM users WHERE user_id = :user_id LIMIT 1");
             $stmt->execute([':user_id' => $userId]);
             $data = $stmt->fetch();
 
