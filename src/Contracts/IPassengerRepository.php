@@ -8,6 +8,7 @@ interface IPassengerRepository
 {
     public function save(Passenger $passenger) : bool;
     public function findPassengerById(int $passengerId) : ?Passenger;
+    public function findPassengerByUserId(int $userId) : ?Passenger;
     public function findAllPassengers() : array;
     public function updatePassenger(Passenger $passenger) : bool;
     public function deletePassenger(int $passengerId) : bool;

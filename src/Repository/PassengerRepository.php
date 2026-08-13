@@ -55,6 +55,26 @@ readonly class PassengerRepository implements IPassengerRepository
         }
     }
 
+    public function findPassengerByUserId(int $userId) : ?Passenger
+    {
+        try {
+            $stmt = $this->pdo->prepare("SELECT u.user_id, u.full_name, u.username, u.password, u.user_role,
+            p.passenger_id, p.passenger_status FROM passengers p JOIN users u ON p.user_id = u.user_id
+            WHERE p.user_id = :user_id LIMIT 1");
+
+            $stmt->execute([':user_id' => $userId]);
+            $data = $stmt->fetch();
+
+            if (!$data) return null;
+
+            return Passenger::fromArray($data);
+        } catch (PDOException $e) {
+            error_log("Error finding passenger with user ID of [$userId] " . $e->getMessage());
+            throw new RuntimeException("An error occurred while fetching passenger by user ID.",
+            code: 500, previous: $e);
+        }
+    }
+
     public function findAllPassengers(): array
     {
         try {

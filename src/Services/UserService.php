@@ -2,7 +2,6 @@
 
 namespace OnlineBooking\src\Services;
 
-use OnlineBooking\src\DTOs\ChangePasswordCommand;
 use OnlineBooking\src\DTOs\RegisterUserCommand;
 use OnlineBooking\src\DTOs\UpdateUserCommand;
 use OnlineBooking\src\DTOs\UserResponseDTO;
@@ -11,7 +10,6 @@ use OnlineBooking\src\Exceptions\InvalidDataException;
 use OnlineBooking\src\Exceptions\UserAlreadyExistsException;
 use OnlineBooking\src\Exceptions\UserNotFoundException;
 use OnlineBooking\src\Models\User;
-use OnlineBooking\src\Models\UserRole;
 use OnlineBooking\src\Repository\UserRepository;
 use RuntimeException;
 
@@ -44,7 +42,10 @@ final readonly class UserService
 
     public function authenticateUser(string $userName, string $plainTextPassword) : User
     {
-        $user = $this->userRepository->findByUsername($userName) ?? throw new AuthenticationException("Invalid username or password.", code: 404);
+        $user = $this->userRepository->findByUsername($userName);
+        if ($user === null) {
+            throw new AuthenticationException("Invalid username or password.", code: 404);
+        }
 
         if (!$user->verifyPassword($plainTextPassword)) {
             throw new AuthenticationException("Invalid username or password.", code: 404);
@@ -56,6 +57,7 @@ final readonly class UserService
     public function getUserById(int $userId) : User
     {
         $user = $this->userRepository->findByUserId($userId) ?? throw new UserNotFoundException("User not found with ID: $userId", code: 404);
+
         return $user;
     }
 
@@ -82,18 +84,18 @@ final readonly class UserService
         return $this->mapToResponse($user);
     }
 
-    public function changePassword(ChangePasswordCommand $command) : void
+    public function changePassword(int $userId, string $currentPassword, string $newPassword) : void
     {
-        $user = $this->getUserById($command->userId);
+        $user = $this->getUserById($userId);
 
-        if (!$user->verifyPassword($command->currentPassword)) {
+        if (!$user->verifyPassword($currentPassword)) {
             throw new InvalidDataException("Current password is incorrect.");
         }
 
-        $user->validateNewPassword($command->newPassword);
+        $user->validateNewPassword($newPassword);
 
-        $hashedPassword = password_hash($command->newPassword, PASSWORD_ARGON2ID);
-        $this->userRepository->updatePassword($command->userId, $hashedPassword);
+        $hashedPassword = password_hash($newPassword, PASSWORD_ARGON2ID);
+        $this->userRepository->updatePassword($userId, $hashedPassword);
     }
 
     public function deleteUser(int $userId) : void
@@ -124,7 +126,6 @@ final readonly class UserService
             userId: $user->userId,
             fullName: $user->fullName,
             username: $user->username,
-            password: $user->getHashedPassword(),
             userRole: $user->userRole->value,
             createdAt: $user->getFormattedAt
         );
