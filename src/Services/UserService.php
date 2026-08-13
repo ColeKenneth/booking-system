@@ -2,6 +2,10 @@
 
 namespace OnlineBooking\src\Services;
 
+use OnlineBooking\src\DTOs\ChangePasswordCommand;
+use OnlineBooking\src\DTOs\RegisterUserCommand;
+use OnlineBooking\src\DTOs\UpdateUserCommand;
+use OnlineBooking\src\DTOs\UserResponseDTO;
 use OnlineBooking\src\Exceptions\AuthenticationException;
 use OnlineBooking\src\Exceptions\InvalidDataException;
 use OnlineBooking\src\Exceptions\UserAlreadyExistsException;
@@ -15,35 +19,32 @@ final readonly class UserService
 {
     public function __construct(private UserRepository $userRepository){}
 
-    public function registerUser(string $fullName, string $username, string $password, UserRole $role = UserRole::PASSENGER) : User
+    public function registerUser(RegisterUserCommand $command) : UserResponseDTO
     {
-        $existing = $this->userRepository->findByUsername($username);
+        $existing = $this->userRepository->findByUsername($command->username);
         if ($existing !== null) {
-            error_log("Username [$username] already taken.");
-            throw new UserAlreadyExistsException("Username $username is already taken.", code: 409);
+            error_log("Username [$command->username] already taken.");
+            throw new UserAlreadyExistsException("Username $command->username is already taken.", code: 409);
         }
 
-        $hashedPassword = password_hash($password, PASSWORD_ARGON2ID);
+        $hashedPassword = password_hash($command->password, PASSWORD_ARGON2ID);
 
         $user = new User(
             userId: null,
-            fullName: $fullName,
-            username: $username,
+            fullName: $command->fullName,
+            username: $command->username,
             password: $hashedPassword,
-            userRole: $role
+            userRole: $command->userRole
         );
         $this->userRepository->save($user);
 
-        $savedUser = $this->userRepository->findByUsername($username) ?? throw new RuntimeException("Failed to retrieve saved user", code: 500);
-        return $savedUser;
+        $savedUser = $this->userRepository->findByUsername($command->username) ?? throw new RuntimeException("Failed to retrieve saved user", code: 500);
+        return $this->mapToResponse($savedUser);
     }
 
     public function authenticateUser(string $userName, string $plainTextPassword) : User
     {
-        $user = $this->userRepository->findByUsername($userName);
-        if ($user === null) {
-            throw new AuthenticationException("Invalid username or password.", code: 404);
-        }
+        $user = $this->userRepository->findByUsername($userName) ?? throw new AuthenticationException("Invalid username or password.", code: 404);
 
         if (!$user->verifyPassword($plainTextPassword)) {
             throw new AuthenticationException("Invalid username or password.", code: 404);
@@ -55,7 +56,6 @@ final readonly class UserService
     public function getUserById(int $userId) : User
     {
         $user = $this->userRepository->findByUserId($userId) ?? throw new UserNotFoundException("User not found with ID: $userId", code: 404);
-
         return $user;
     }
 
@@ -65,35 +65,35 @@ final readonly class UserService
         return $user;
     }
 
-    public function updateUserProfile(int $userId, string $fullName, string $username) : User
+    public function updateUserProfile(UpdateUserCommand $command) : UserResponseDTO
     {
-        $user = $this->getUserById($userId);
-        $existing = $this->userRepository->findByUsername($username);
+        $user = $this->getUserById($command->userId);
+        $existing = $this->userRepository->findByUsername($command->username);
 
-        if ($existing !== null && $existing->userId !== $userId) {
-            throw new UserAlreadyExistsException("Username $username is already taken.", code: 409);
+        if ($existing !== null && $existing->userId !== $command->userId) {
+            throw new UserAlreadyExistsException("Username $command->username is already taken.", code: 409);
         }
 
-        $user->fullName = $fullName;
-        $user->username= $username;
+        $user->fullName = $command->fullName;
+        $user->username= $command->username;
 
         $this->userRepository->update($user);
 
-        return $user;
+        return $this->mapToResponse($user);
     }
 
-    public function changePassword(int $userId, string $currentPassword, string $newPassword) : void
+    public function changePassword(ChangePasswordCommand $command) : void
     {
-        $user = $this->getUserById($userId);
+        $user = $this->getUserById($command->userId);
 
-        if (!$user->verifyPassword($currentPassword)) {
+        if (!$user->verifyPassword($command->currentPassword)) {
             throw new InvalidDataException("Current password is incorrect.");
         }
 
-        $user->validateNewPassword($newPassword);
+        $user->validateNewPassword($command->newPassword);
 
-        $hashedPassword = password_hash($newPassword, PASSWORD_ARGON2ID);
-        $this->userRepository->updatePassword($userId, $hashedPassword);
+        $hashedPassword = password_hash($command->newPassword, PASSWORD_ARGON2ID);
+        $this->userRepository->updatePassword($command->userId, $hashedPassword);
     }
 
     public function deleteUser(int $userId) : void
@@ -116,5 +116,17 @@ final readonly class UserService
             return false;
         }
 
+    }
+
+    private function mapToResponse(User $user) : UserResponseDTO
+    {
+        return new UserResponseDTO(
+            userId: $user->userId,
+            fullName: $user->fullName,
+            username: $user->username,
+            password: $user->getHashedPassword(),
+            userRole: $user->userRole->value,
+            createdAt: $user->getFormattedAt
+        );
     }
 }

@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace OnlineBooking\src\Models;
 
+use DateTimeImmutable;
 use OnlineBooking\src\Constants\BookingConstants;
 use OnlineBooking\src\Contracts\Validate;
 use OnlineBooking\src\Exceptions\InvalidDataException;
@@ -37,14 +38,15 @@ class User implements Validate
        },
 
        private readonly string $password,
-       private(set) readonly UserRole $userRole
+       private(set) readonly UserRole $userRole,
+       private ?DateTimeImmutable $createdAt = null
    ) {}
-
-    public function getHashedPassword() : string
+   
+   public function getHashedPassword() : string
     {
         return $this->password;
     }
-
+    
     public function verifyPassword(string $plainTextPassword) : bool
     {
         return password_verify($plainTextPassword, $this->password);
@@ -55,6 +57,11 @@ class User implements Validate
         if (!preg_match(BookingConstants::PASSWORD_FORMAT, $newPassword)) {
             throw new InvalidDataException(BookingConstants::PASSWORD_HINT);
         }
+    }
+
+    public string $getFormattedAt 
+    {
+        get => $this->createdAt?->format('Y-m-d H:i:s');
     }
 
     #[Override]
@@ -71,7 +78,8 @@ class User implements Validate
             $data['full_name'],
             $data['username'],
             $data['password'],
-            UserRole::from($data['user_role'])
+            UserRole::from($data['user_role']),
+            isset($data['created_at']) ? new DateTimeImmutable($data['created_at']) : null
         );
     }
 
