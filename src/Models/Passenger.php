@@ -14,11 +14,16 @@ final class Passenger extends User implements Validate
         string $fullName,
         string $userName,
         string $password,
-        private(set) readonly PassengerStatus $passengerStatus,
+        private(set) PassengerStatus $passengerStatus,
         private ?DateTimeImmutable $createdAt = null
     )
     {
         parent::__construct($userId, $fullName, $userName, $password, UserRole::PASSENGER);
+    }
+
+    public function updateStatus(PassengerStatus $status) : void 
+    {
+        $this->passengerStatus = $status;
     }
 
     public string $getFormattedAt {

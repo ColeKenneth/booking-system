@@ -54,22 +54,19 @@ final readonly class UserService
         return $user;
     }
 
-    public function getUserById(int $userId) : User
+    public function getUserById(int $userId) : UserResponseDTO
     {
-        $user = $this->userRepository->findByUserId($userId) ?? throw new UserNotFoundException("User not found with ID: $userId", code: 404);
-
-        return $user;
+       return $this->mapToResponse($this->findUserById($userId));
     }
 
-    public function getUserByUsername(string $username) : User
+    public function getUserByUsername(string $username) : UserResponseDTO
     {
-        $user = $this->userRepository->findByUsername($username) ?? throw new UserNotFoundException("User not found with username: $username", code: 404);
-        return $user;
+        return $this->mapToResponse($this->findByUsername($username));
     }
 
     public function updateUserProfile(UpdateUserCommand $command) : UserResponseDTO
     {
-        $user = $this->getUserById($command->userId);
+        $user = $this->findUserById($command->userId);
         $existing = $this->userRepository->findByUsername($command->username);
 
         if ($existing !== null && $existing->userId !== $command->userId) {
@@ -86,7 +83,7 @@ final readonly class UserService
 
     public function changePassword(int $userId, string $currentPassword, string $newPassword) : void
     {
-        $user = $this->getUserById($userId);
+        $user = $this->findUserById($userId);
 
         if (!$user->verifyPassword($currentPassword)) {
             throw new InvalidDataException("Current password is incorrect.");
@@ -100,7 +97,7 @@ final readonly class UserService
 
     public function deleteUser(int $userId) : void
     {
-        $this->getUserById($userId);
+        $this->findUserById($userId);
         $this->userRepository->delete($userId);
     }
 
@@ -118,6 +115,18 @@ final readonly class UserService
             return false;
         }
 
+    }
+
+    public function findUserById(int $userId) : User
+    {
+        return $this->userRepository->findByUserId($userId)
+        ?? throw new UserNotFoundException("User not found with ID: $userId", code: 404);
+    }
+
+    private function findByUsername(string $username) : User
+    {
+        return $this->userRepository->findByUsername($username)
+        ?? throw new UserNotFoundException("User not found with username: $username", code: 404);
     }
 
     private function mapToResponse(User $user) : UserResponseDTO

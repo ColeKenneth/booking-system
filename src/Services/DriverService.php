@@ -18,7 +18,7 @@ final readonly class DriverService
 
     public function registerDriver(RegisterDriverCommand $driverCommand) : DriverResponseDTO
     {
-        $user = $this->userService->getUserById($driverCommand->userId);
+        $user = $this->userService->findUserById($driverCommand->userId);
 
         if ($this->driverRepository->findDriverByUserId($driverCommand->userId) !== null) {
             throw new DriverAlreadyExistsException("Driver already exists.", code: 409);
@@ -75,7 +75,7 @@ final readonly class DriverService
 
     public function deleteDriver(int $driverId) : void 
     {
-        $this->driverRepository->findDriverById($driverId);
+        $this->findDriverById($driverId);
         $this->driverRepository->deleteDriver($driverId);
     }
 

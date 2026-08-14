@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace OnlineBooking\src\Models;
 
+use DateTimeImmutable;
 use OnlineBooking\src\Contracts\Validate;
 use OnlineBooking\src\Exceptions\InvalidDataException;
 
@@ -43,7 +44,8 @@ final class Booking implements Validate
             }
         },
 
-        private(set) readonly BookingStatus $bookingStatus
+        private(set) BookingStatus $bookingStatus,
+        private ?DateTimeImmutable $createdAt = null
     ){}
 
     public function getPassengerId() : ?int {
@@ -52,6 +54,15 @@ final class Booking implements Validate
 
     public function getDriverId() : ?int {
         return $this->driverId;
+    }
+
+    public function updateStatus(BookingStatus $status) : void
+    {
+        $this->bookingStatus = $status;
+    }
+
+    public string $formattedAt {
+        get => $this->createdAt?->format('Y-m-d H:i:s');
     }
 
     public function validate(): void
@@ -69,7 +80,8 @@ final class Booking implements Validate
             $data['pickup_location'],
             $data['drop_off_location'],
             (float)$data['fare'],
-            BookingStatus::from($data['booking_status'])
+            BookingStatus::from($data['booking_status']),
+            isset($data['created_at']) ? new DateTimeImmutable($data['created_at']) : null
         );
     }
 }

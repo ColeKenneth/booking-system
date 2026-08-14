@@ -163,17 +163,13 @@ readonly class BookingRepository implements IBookingRepository
     public function updateBooking(Booking $booking): bool
     {
         try {
-            $stmt = $this->pdo->prepare("UPDATE booking SET passenger_id = :passenger_id,
-                   driver_id = :driver_id, pickup_location = :pickup_location, drop_off_location = :drop_off_location,
-                   fare = :fare, booking_status = :booking_status WHERE booking_id = :booking_id");
+            $stmt = $this->pdo->prepare("UPDATE booking SET pickup_location = :pickup_location,
+            drop_off_location = :drop_off_location, fare = :fare WHERE booking_id = :booking_id");
 
             return $stmt->execute([
-                ':passenger_id' => $booking->getPassengerId(),
-                ':driver_id' => $booking->getDriverId(),
                 ':pickup_location' => $booking->pickupLocation,
                 ':drop_off_location' => $booking->dropOffLocation,
                 ':fare' => $booking->fare,
-                ':booking_status' => $booking->bookingStatus->value,
                 ':booking_id' => $booking->bookingId
             ]);
         } catch (PDOException $e) {

@@ -6,7 +6,7 @@ namespace OnlineBooking\src\DTOs;
 final readonly class DriverResponseDTO
 {
     public function __construct(
-        public ?int $driverId,
+        public int $driverId,
         public int $userId,
         public string $fullName,
         public string $username,
