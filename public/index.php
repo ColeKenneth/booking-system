@@ -2,12 +2,15 @@
 
 use OnlineBooking\src\Controllers\BookingController;
 use OnlineBooking\src\DTOs\CreateBookingCommand;
+use OnlineBooking\src\DTOs\RegisterDriverCommand;
 use OnlineBooking\src\DTOs\UpdateBookingCommand;
 use OnlineBooking\src\Models\BookingStatus;
+use OnlineBooking\src\Models\DriverStatus;
 
 require_once __DIR__ . '/../src/bootstrap.php';
-
-
+/**
+ * This is for the Booking Controller to route and process data coming from the frontend.
+ */
 $bookingController = new BookingController($bookingService);
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -130,6 +133,28 @@ if ($method === "DELETE" && preg_match('#^/bookings/(\d+)$#', $uri, $matches)) {
     $bookingController->delete($bookingId);
 
     http_response_code(204);
+    exit;
+}
+
+// Driver Controller part
+if ($method === "POST" && $uri === "/drivers") {
+    $data = json_encode(
+        file_get_contents('php://input'),
+        true,
+        JSON_THROW_ON_ERROR
+    );
+
+    $command = new RegisterDriverCommand(
+        userId: (int)$data['user_id'],
+        carBrand: $data['car_brand'],
+        plateNumber: $data['plate_number'],
+        driverStatus: DriverStatus::from($data['driver_status'])
+    );
+
+    $result = $driverController->register($command);
+
+    header('Content-Type: application/json');
+    echo json_encode($result);
     exit;
 }
 
