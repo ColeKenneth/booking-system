@@ -3,7 +3,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use OnlineBooking\src\Connection\DBConnection;
+use OnlineBooking\src\Controllers\BookingController;
 use OnlineBooking\src\Controllers\DriverController;
+use OnlineBooking\src\Controllers\PassengerController;
+use OnlineBooking\src\Controllers\UserController;
 use OnlineBooking\src\Repository\BookingRepository;
 use OnlineBooking\src\Repository\DriverRepository;
 use OnlineBooking\src\Repository\PassengerRepository;
@@ -30,3 +33,6 @@ $passengerService = new PassengerService($passengerRepository, $userService);
 $bookingService = new BookingService($bookingRepository, $passengerService, $driverService);
 
 $driverController = new DriverController($driverService);
+$bookingContoller = new BookingController($bookingService);
+$passengerController = new PassengerController($passengerService);
+$userController = new UserController($userService);
