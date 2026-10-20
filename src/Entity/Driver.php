@@ -6,6 +6,8 @@ namespace App\Entity;
 use App\Enum\DriverStatus;
 use App\Repository\DriverRepository;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -37,10 +39,17 @@ class Driver
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    /**
+     * @var Collection<int, Booking>
+     */
+    #[ORM\OneToMany(targetEntity: Booking::class, mappedBy: 'driver')]
+    private Collection $bookings;
+
     public function __construct(User $user)
     {
         $this->user = $user;
         $this->createdAt = new DateTimeImmutable();
+        $this->bookings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,5 +108,26 @@ class Driver
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    /**
+     * @return Collection<int, Booking>
+     */
+    public function getBookings(): Collection
+    {
+        return $this->bookings;
+    }
+
+    public function addBooking(Booking $booking): static
+    {
+        if (!$this->bookings->contains($booking)) {
+            $this->bookings->add($booking);
+        }
+
+        if ($booking->getDriver() !== $this) {
+            $booking->setDriver($this);
+        }
+
+        return $this;
     }
 }
