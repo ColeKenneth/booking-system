@@ -5,14 +5,19 @@ namespace App\Entity;
 
 use App\Enum\UserRole;
 use App\Repository\UserRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Override;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User
+#[ORM\HasLifecycleCallbacks]
+class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -49,23 +54,22 @@ class User
     private UserRole $userRole;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     /**
      * @var Collection<int, Passenger>
      */
-    #[ORM\OneToMany(targetEntity: Passenger::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Passenger::class, mappedBy: 'user')]
     private Collection $passengers;
 
     /**
      * @var Collection<int, Driver>
      */
-    #[ORM\OneToMany(targetEntity: Driver::class, mappedBy: 'userId', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Driver::class, mappedBy: 'user')]
     private Collection $drivers;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
         $this->passengers = new ArrayCollection();
         $this->drivers = new ArrayCollection();
     }
@@ -148,6 +152,12 @@ class User
         return $this;
     }
 
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new DateTimeImmutable();
+    }
+
     public function getUserRole(): UserRole
     {
         return $this->userRole;
@@ -214,5 +224,22 @@ class User
         $this->drivers->removeElement($driver);
 
         return $this;
+    }
+
+    #[Override]
+    public function getUserIdentifier(): string
+    {
+        return $this->username;
+    }
+
+    #[Override]
+    public function getRoles(): array
+    {
+        return [$this->userRole->value];
+    }
+
+    public function eraseCredentials(): void
+    {
+
     }
 }

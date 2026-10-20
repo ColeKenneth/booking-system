@@ -3,9 +3,9 @@ declare(strict_types = 1);
 
 namespace App\Enum;
 
-enum UserRole : string 
+enum UserRole : string
 {
-    case PASSENGER = "Passenger";
-    case DRIVER = "Driver";
-    case ADMIN = "Admin";
+    case ROLE_PASSENGER = "Passenger";
+    case ROLE_DRIVER = "Driver";
+    case ROLE_ADMIN = "Admin";
 }
